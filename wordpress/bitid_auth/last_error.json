@@ -1,0 +1,16 @@
+2014-07-02 20:59:11
+Array
+(
+    [status] => 30
+    [message] => Bad signature
+)
+Array
+(
+)
+Array
+(
+    [uri] => bitid://scoutwebb.puggan.se/wp/wp-content/plugins/bitid_auth/callback.php?x=27a3946db0c72fc46610b4f9d588062e&u=1
+    [address] => 1PuGGaN1Lj26nQayvZi4szH6VLt8sb1LcU
+    [signature] => G8v6e1f9ijA+h7uJMSJBil3cZFqUzYLTMJNvyMnG31dfWhKHbXVIlEFaMwf+rtnuEhwH7OTW9xVHIOEASe/Hspk=
+)
+bitid://scoutwebb.puggan.se/wp/wp-content/plugins/bitid_auth/callback.php?x=27a3946db0c72fc46610b4f9d588062e&u=1
