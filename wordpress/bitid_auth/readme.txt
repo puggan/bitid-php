@@ -3,7 +3,7 @@ Contributors: puggan
 Tags: Authentication
 Requires at least: 3.0.1
 Tested up to: 3.9.1
-Stable tag: 0.0.0-20140702
+Stable tag: 0.0.2-20140705
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,9 +29,17 @@ extends wordpress default authentication with the bitid-protocol
 
 == Changelog ==
 0.0.0-20140702 First upload
+0.0.1-20140702 BitID authentication working, but admin UI is still missing.
+0.0.2-20140705 No longer use direct file acess, insted using wordpress functions, see http://ottopress.com/2010/dont-include-wp-load-please/
 
 == Upgrade Notice ==
-First upload
+No longer reqire default wordpress filestructure.
 
 == Screenshots ==
 no Screenshots yet :-(
+
+== reference ==
+This project is built ontop of code made in other projects:
+	bitid-protocol @ https://github.com/LaurentMT/bitid (forked from https://github.com/bitid/bitid )
+	bitid-php @ https://github.com/conejoninja/bitid-php
+	phpeec @ https://github.com/mdanter/phpecc

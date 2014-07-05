@@ -24,6 +24,10 @@ DEFINE("BITID_AUTHENTICATION_PLUGIN_VERSION",'0.0.2');
 
 	add_filter( 'login_message', 'bitid_login_header' );
 
+	add_action( 'template_redirect', 'bitid_callback_test' );
+	add_action( 'wp_ajax_nopriv_bitid', 'bitid_ajax' );
+
+
 	/* check version on load */
 	function bitid_update_db_check()
 	{
@@ -114,17 +118,19 @@ SQL_BLOCK;
 		}
 	}
 
-	function bitid_get_callback_url()
+	function bitid_get_callback_url($nonce = NULL)
 	{
-		$nonce = bitid_get_nonce();
+		if(!$nonce)
+		{
+			$nonce = bitid_get_nonce();
+		}
 
 		if(!$nonce)
 		{
 			return FALSE;
 		}
 
-// 		$url = plugins_url("callback.php?nonce=" . $nonce, __FILE__);
-		$url = plugins_url("callback.php?x=" . $nonce, __FILE__);
+		$url = home_url("bitid/callback?x=" . $nonce);
 
 		if(substr($url, 0, 8) == 'https://')
 		{
@@ -162,44 +168,53 @@ HTML_BLOCK;
 
 	function bitid_login_script()
 	{
-		$ajax_url = plugins_url("ajax.php" . $nonce, __FILE__);
+		$ajax_url = admin_url('admin-ajax.php?action=bitid');
+
 		$js = <<<JS_BLOCK
-setInterval(
+var bitid_interval_resource;
+bitid_interval_resource = setInterval(
 	function()
 	{
 		var ajax = new XMLHttpRequest();
 		ajax.open("GET", "{$ajax_url}", true);
-		ajax.onreadystatechange = function ()
-		{
-			if(ajax.readyState != 4 || ajax.status != 200)
+		ajax.onreadystatechange =
+			function ()
 			{
-				return;
-			}
-			else if(ajax.responseText > '')
-			{
-				var json = JSON.parse(ajax.responseText);
+				if(ajax.readyState != 4 || ajax.status != 200)
+				{
+					return;
+				}
+				else if(ajax.responseText > '')
+				{
+					var json = JSON.parse(ajax.responseText);
 
-				if(json.html > '')
-				{
-					document.getElementById('bitid').innerHTML = json.html;
-				}
-				if(json.reload > 0)
-				{
-					var redirect = document.getElementsByName("redirect_to");
-					if(redirect && redirect[0].value > '')
+					if(json.html > '')
 					{
-						window.location.href = redirect[0].value;
+						document.getElementById('bitid').innerHTML = json.html;
 					}
-					else
+
+					if(json.stop > 0)
 					{
-						window.location.href = "wp-admin/";
+						window.clearInterval(bitid_interval_resource);
+					}
+
+					if(json.reload > 0)
+					{
+						var redirect = document.getElementsByName("redirect_to");
+						if(redirect && redirect[0].value > '')
+						{
+							window.location.href = redirect[0].value;
+						}
+						else
+						{
+							window.location.href = "wp-admin/";
+						}
 					}
 				}
-			}
-		};
+			};
 		ajax.send();
 	},
-	1000
+	3000
 );
 JS_BLOCK;
 
@@ -229,4 +244,18 @@ JS_BLOCK;
 		{
 			$GLOBALS['wpdb']->delete($table_name_nonce, array('session_id' => $session_id));
 		}
+	}
+
+	function bitid_callback_test()
+	{
+		$bitid_callback_url = "/bitid/callback";
+		if(strstr($_SERVER['REQUEST_URI'], $bitid_callback_url))
+		{
+			require_once("callback.php");
+		}
+	}
+
+	function bitid_ajax()
+	{
+		require_once("ajax.php");
 	}

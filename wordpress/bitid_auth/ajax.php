@@ -1,21 +1,10 @@
 <?php
 
-	if(file_exists("../../../wp-load.php"))
-	{
-		require_once("../../../wp-load.php");
-	}
-	else
-	{
-		// temporary solving the problem with "ln -s" and "../
-		require_once("/mnt/data/www/wp_3_9_0/wp-load.php");
-	}
-
 	$session_id = session_id();
 
 	if(!$session_id)
 	{
 		session_start();
-
 		$session_id = session_id();
 	}
 

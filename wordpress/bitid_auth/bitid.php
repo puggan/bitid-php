@@ -442,12 +442,16 @@ class BitID
 		return $binStr;
 	}
 
-	public static function http_error($error_number, $error_message, $http_code = 401, $http_code_name = 'Unauthorized')
+	public static function http_error($error_number, $error_message, $http_code = 401, $http_code_name = 'Unauthorized', $debug_data = NULL)
 	{
+		if(!((int) $http_code)) $http_code = 401;
+		if(!$http_code_name) $http_code_name = 'Unauthorized';
+
 		header(trim("HTTP/1.0 {$http_code} {$http_code_name}"));
 		$error = array('status' => (int) $error_number, 'message' => (string) $error_message);
 		echo json_encode($error);
-		file_put_contents("last_error.json", date("Y-m-d H:i:s") . "\n" . print_r($error, TRUE) . print_r($_POST, TRUE) . print_r(@$GLOBALS['json'], TRUE) . @$GLOBALS['uri'] . PHP_EOL);
+
+// 		file_put_contents(dirname(__FILE__) . "/last_error.json", print_r(array('date' => date("Y-m-d H:i:s"), 'error' => $error, 'post' => $_POST, 'vars' => $GLOBALS['bitid_vars'], 'debug' => $debug_data), TRUE) . PHP_EOL);
 		die(PHP_EOL);
 	}
 

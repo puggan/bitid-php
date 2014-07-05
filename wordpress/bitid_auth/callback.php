@@ -6,6 +6,14 @@
 
 	$post_data = array();
 
+	$json = NULL;
+	$uri = NULL;
+	$nonce = NULL;
+
+	$GLOBALS['bitid_vars']['json'] = &$json;
+	$GLOBALS['bitid_vars']['uri'] = &$uri;
+	$GLOBALS['bitid_vars']['nonce'] = &$nonce;
+
 	if(substr($raw_post_data, 0, 1) == "{")
 	{
 		$json = json_decode($raw_post_data, TRUE);
@@ -53,26 +61,11 @@
 		die();
 	}
 
-	if(file_exists("../../../wp-load.php"))
-	{
-		require_once("../../../wp-load.php");
-	}
-	else
-	{
-		// temporary solving the problem with "ln -s" and "../
-		require_once("/mnt/data/www/wp_3_9_0/wp-load.php");
-	}
-
-	$uri = "bitid://{$_SERVER['HTTP_HOST']}{$_SERVER['SCRIPT_NAME']}?x={$nonce}";
-
-	if(!isset($_SERVER['HTTPS']) OR !$_SERVER['HTTPS'])
-	{
-		$uri .= "&u=1";
-	}
+	$uri = bitid_get_callback_url($nonce);
 
 	if($uri != $post_data['uri'])
 	{
-		BitID::http_error(10, 'Bad URI');
+		BitID::http_error(10, 'Bad URI', NULL, NULL, array('expected' => $uri, 'sent_uri' => $post_data['uri']));
 		die();
 	}
 
