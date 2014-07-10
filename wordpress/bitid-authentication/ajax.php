@@ -9,6 +9,7 @@
 	}
 
 	$table_name_nonce = "{$GLOBALS['wpdb']->prefix}bitid_nonce";
+	$table_name_userlink = "{$GLOBALS['wpdb']->prefix}bitid_userlink";
 	$query = $GLOBALS['wpdb']->prepare("SELECT * FROM {$table_name_nonce} WHERE session_id = %s", $session_id);
 	$nonce_row = $GLOBALS['wpdb']->get_row($query, ARRAY_A);
 
@@ -17,20 +18,20 @@
 	if(!$nonce_row)
 	{
 		$data['status'] = -1;
-		$data['html'] = "<p>Error: The current session dosn't have a bitid-nonce.</p>";
+		$data['html'] = "<p>" . __("Error: The current session dosn't have a bitid-nonce.", 'bitid-authentication') . "</p>";
 	}
 	else if($nonce_row['address'])
 	{
 		$data['status'] = 1;
 		$data['adress'] = $nonce_row['address'];
 
-		$query = $GLOBALS['wpdb']->prepare("SELECT * FROM wp_bitid_userlink WHERE address = %s", $data['adress']);
+		$query = $GLOBALS['wpdb']->prepare("SELECT * FROM {$table_name_userlink} WHERE address = %s", $data['adress']);
 		$user_row = $GLOBALS['wpdb']->get_row($query, ARRAY_A);
 		if($user_row)
 		{
 			if(is_user_logged_in())
 			{
-				$data['html'] = "<p>Allredy logged in</p>";
+				$data['html'] = "<p>" . __("Allredy logged in", 'bitid-authentication') . "</p>";
 				$data['reload'] = 1;
 			}
 			else
@@ -42,18 +43,21 @@
 					wp_set_auth_cookie($user->ID);
 					do_action('wp_login', $user->user_login, $user);
 
-					$data['html'] = "<p>Sucess, loged in as '{$user->user_login}'</p>";
+					$data['html'] = "<p>" . sprintf(__("Sucess, loged in as '%s'", 'bitid-authentication'), $user->user_login) . "</p>";
 					$data['reload'] = 1;
+
+					$update_query = $GLOBALS['wpdb']->prepare("UPDATE {$table_name_userlink} SET pulse = NOW() WHERE address = %s", $data['adress']);
+					$GLOBALS['wpdb']->update($update_query);
 				}
 				else
 				{
-					$data['html'] = "<p>Bitid verification Sucess, but no useraccount connected to '{$data['adress']}'</p>";
+					$data['html'] = "<p>" . sprintf(__("Bitid verification Sucess, but no useraccount connected to '%s'", 'bitid-authentication'), $data['adress']) . "</p>";
 				}
 			}
 		}
 		else
 		{
-			$data['html'] = "<p>Bitid verification Sucess, but no useraccount connected to '{$data['adress']}'</p>";
+			$data['html'] = "<p>" . sprintf(__("Bitid verification Sucess, but no useraccount connected to '%s'", 'bitid-authentication'), $data['adress']) . "</p>";
 		}
 	}
 	else
